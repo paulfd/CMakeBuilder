@@ -10,6 +10,7 @@ class NMake_Makefiles(CMakeGenerator):
         return 'NMake Makefiles'
 
     def env(self):
+        print('Called env()')
         if self.visual_studio_versions:
             vs_versions = self.visual_studio_versions
         else:
@@ -53,7 +54,8 @@ class NMake_Makefiles(CMakeGenerator):
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         lines = subprocess.check_output(
             'cmake --build . --target help', 
-            cwd=self.build_folder, 
+            cwd=self.build_folder,
+            env=self.env(),
             startupinfo=startupinfo).decode('utf-8').splitlines()
 
         variants = []

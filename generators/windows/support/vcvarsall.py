@@ -160,7 +160,7 @@ def query_vcvarsall(version, arch="x86"):
     """Launch vcvarsall.bat and read the settings from its environment
     """
     vcvarsall = find_vcvarsall(version)
-    interesting = set(("include", "lib", "libpath", "path"))
+    interesting = set(("INCLUDE", "LIB", "LIBPATH", "Path", "PATH"))
     result = {}
 
     if vcvarsall is None:
@@ -186,13 +186,19 @@ def query_vcvarsall(version, arch="x86"):
             continue
         line = line.strip()
         key, value = line.split('=', 1)
-        key = key.lower()
         if key in interesting:
             if value.endswith(os.pathsep):
                 value = value[:-1]
             result[key] = remove_duplicates(value)
 
-    if len(result) != len(interesting):
-        raise ValueError(str(list(result.keys())))
+    # Sanity checks for the environment
+    if not ("INCLUDE" in result):
+        raise ValueError("The environment is missing an INCLUDE statement")
+    if not ("LIB" in result):
+        raise ValueError("The environment is missing a LIB statement")
+    if not ("LIBPATH" in result):
+        raise ValueError("The environment is missing a LIBPATH statement")
+    if not ("Path" in result or "PATH" in result):
+        raise ValueError("The environment is missing a Path/PATH statement")
 
     return result
